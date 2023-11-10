@@ -23,9 +23,9 @@ solution* rec(unordered_set<int> &a, unordered_set<int> &b, int last_b, int curr
 	int aux = curr + 2*AWARD;
 	for(auto i: a_cp){
 		if(last_b != -1){
-			if(aux < backward[last_b][i])
+			if(aux < backward[i][last_b])
 				continue;
-			aux -= backward[last_b][i]; 
+			aux -= backward[i][last_b]; 
 		}
 		a.erase(i);
 		for(auto j: b_cp){
@@ -47,7 +47,7 @@ solution* rec(unordered_set<int> &a, unordered_set<int> &b, int last_b, int curr
 			b.insert(j);
 		}
 		if(last_b != -1)
-			aux += backward[last_b][i]; 
+			aux += backward[i][last_b]; 
 		a.insert(i);
 	}
 	return best;

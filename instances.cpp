@@ -11,13 +11,13 @@ int main(int argc, char *argv[]){
 		}
 		cout << endl;
 	}
-	for(int i = 0; i < b; i++){
-		for(int j = 0; j < a; j++){
-			if(j == i + 1)
+	for(int i = 0; i < a; i++){
+		for(int j = 0; j < b; j++){
+			if(i == j + 1)
 				cout << 0;
-			else if(j > i + 1)
-				cout << min(50 + (j - i - 2)*10, 200);
-			else cout << min(100 + (i - j)*20, 400);
+			else if(i > j + 1)
+				cout << min(50 + (i - j - 2)*10, 200);
+			else cout << min(100 + (j - i)*20, 400);
 			cout << ' ';
 		}
 		cout << endl;

@@ -1,17 +1,21 @@
 #!/usr/bin/bash
-g++ brute_force.cpp -O3 -o forza
+if [ ! -d bin ]; then 
+	mkdir bin
+fi
+EXE=bin/brute_force.exe
+g++ brute_force.cpp -O3 -o $EXE
 if [ $1 ]; then
 	echo "Executando a instância \"$1\"."
-	./forza < $1
+	./$EXE < $1
 else 
-	echo "" >> random_instances/results
+	output=random_instances/results
 	echo "Executando todos as instâncias em random_instances."
+	echo $(date) > $output
 	for j in 5 6 7 8; do 
 	    for i in 1 2 3 4 5; do 
-		result=$(./forza < "random_instances/${j}_${i}")
-		#echo "${j}_${i}: ${result}"
-		#echo "${j}_${i}: ${result}" >> random_instances/results
+		result=$(./$EXE < "random_instances/${j}_${i}")
+		echo "${j}_${i}: ${result}"
+		echo "${j}_${i}: ${result}" >> $output 
 	    done 
 	done
 fi
-rm forza
