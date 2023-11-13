@@ -1,8 +1,8 @@
 #include <bits/stdc++.h>
 #define MUTATION_RATE 0.03
-#define NEW_POPULATION_RATE 0.75
+#define NEW_POPULATION_RATE 0.85
 #define POPULATION_SIZE 1000 
-#define TIMELIMIT 20
+#define TIMELIMIT 5 
 #define AWARD 250
 #define TIME_NOW timediff_in_sec(start, clock())
 
@@ -10,7 +10,7 @@ using namespace std;
 
 typedef struct Solution {
 	vector<int> seq_a, seq_b;
-	int best_value, best_start, best_end;
+	int best_value, best_start, best_end, generation;
 	double created_at;
 	Solution(){
 		this->created_at = 0;
@@ -18,7 +18,7 @@ typedef struct Solution {
 	}
 } solution;
 
-int size_a, size_b;
+int size_a, size_b, generation;
 auto random_generator = default_random_engine(clock());
 clock_t start; 
 
@@ -36,15 +36,17 @@ void solution_print(solution &sol);
 void read_input(void);
 double timediff_in_sec(clock_t start, clock_t end);
 
+
+int max_build = INT_MIN;
+int max_mutation = INT_MIN, max_mutation_diff = INT_MIN;
+int max_crossover = INT_MIN, max_crossover_diff = INT_MIN;
+
 int main(){
 	read_input();
 	solution best;
 	vector<int> reproduction_order(POPULATION_SIZE);
 	for(int i = 0; i < POPULATION_SIZE; i++) reproduction_order[i] = i;
-	for(auto &sol: population){
-		solution_build(sol);
-		solution_objective_function(sol);
-	}
+	for(auto &sol: population) solution_build(sol);
 	start = clock();
 	int time_next_step = 1;
 	while(TIME_NOW - best.created_at < TIMELIMIT){
@@ -65,15 +67,19 @@ int main(){
 		sort(population.begin(), population.end(), solution_comp);
 		while(population.size() > POPULATION_SIZE*NEW_POPULATION_RATE) population.pop_back();
 		while(population.size() < POPULATION_SIZE){
-			solution sol;
-			solution_build(sol);
-			solution_objective_function(sol);
-			population.push_back(sol);
+			population.emplace_back(solution());
+			solution_build(population.back());
 		}
 		if(solution_comp(population.front(), best))
 			best = population.front();
+		generation++;
 	}
-	printf("total_time: %.3lf - best: %d - created_at: %.3lf s\n", timediff_in_sec(start, clock()), best.best_value, best.created_at);
+	printf("generations: %d, total_time: %.3lf\n", generation, TIME_NOW);
+	printf("best: %d, generations: %d, created_at: %.3lf\n", best.best_value, best.generation, best.created_at);
+	printf("Build: %d\n", max_build);
+	printf("Crossover: %d - %d\n", max_crossover, max_crossover_diff);
+	printf("Mutations: %d - %d\n", max_mutation, max_mutation_diff);
+
 	return 0;
 }
 
@@ -99,7 +105,10 @@ void solution_build(solution &sol){
 	sol.seq_b.resize(size_b);
 	for(int i = 0; i < size_b; i++) sol.seq_b[i] = i;
 	shuffle(sol.seq_b.begin(), sol.seq_b.end(), random_generator); 
-	sol.created_at = timediff_in_sec(start, clock());
+	sol.created_at = TIME_NOW;
+	sol.generation = generation;
+	solution_objective_function(sol);
+	max_build = max(max_build, sol.best_value);
 }
 
 bool solution_comp(solution &a, solution &b){
@@ -120,7 +129,10 @@ solution solution_crossover(solution &a, solution &b){
 	int cut_len_b = max((int) (random_generator() % (size_b - cut_start_b)), 2*size_b/5);
 	crossover_operation(a.seq_b, b.seq_b, sol.seq_b, cut_start_b, cut_len_b);
 	sol.created_at = TIME_NOW;
+	sol.generation = generation;
 	solution_objective_function(sol);
+	max_crossover = max(max_crossover, sol.best_value);
+	max_crossover_diff = max(sol.best_value - max(a.best_value, b.best_value), max_crossover_diff);
 	return sol;
 }
 
@@ -132,7 +144,12 @@ void solution_mutation(solution &sol){
 	swap(sol.seq_a[idx0], sol.seq_a[idx1]);
 	swap(sol.seq_b[idx1], sol.seq_b[idx2]);
 	sol.created_at = TIME_NOW;
+	sol.generation = generation;
+	int old = sol.best_value;
 	solution_objective_function(sol);
+	max_mutation_diff = max(sol.best_value - old, max_mutation_diff);
+	if(old < sol.best_value)
+		max_mutation = max(max_mutation, sol.best_value);
 }
 
 void solution_objective_function(solution &sol){
