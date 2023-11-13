@@ -1,18 +1,57 @@
 #include <bits/stdc++.h>
-#define LIMIT 8
+#define limit 12 
 #define AWARD 250
 using namespace std;
 
-typedef struct Solution {
-	int path[2*LIMIT+1];
+typedef struct solution {
+	int path[2*limit+1];
 	int pos = 0, value;
 } solution;
 
-int forwardEdges[LIMIT][LIMIT];
-int backward[LIMIT][LIMIT];
+int forwardEdges[limit][limit];
+int backwardEdges[limit][limit];
+int pd[1 << limit][1 << limit][limit];
 int n, m;
 
-solution* rec(unordered_set<int> &a, unordered_set<int> &b, int last_b, int curr){
+void fillPD(int value){
+	for(int i = 0; i < (1 << limit); i++)
+		for(int j = 0; j < (1 << limit); j++)
+			for(int k = 0; k < limit; k++)
+				pd[i][j][k] = value;
+}
+
+int rec(unordered_set<int> &a, unordered_set<int> &b, int bm_a, int bm_b, int last_b){
+	int best = 0;
+	if(a.empty() or b.empty())
+		return 0;
+
+	if(last_b >= 0 and pd[bm_a][bm_b][last_b] >= 0)
+		return pd[bm_a][bm_b][last_b];
+	
+	const unordered_set<int> a_cp = a;
+	const unordered_set<int> b_cp = b;
+	for(auto i: a_cp){
+		a.erase(i);
+		for(auto j: b_cp){
+			b.erase(j);
+			int sol = rec(a, b, bm_a | (1 << i), bm_b | (1 << j),  j);
+			sol += AWARD*2 - forwardEdges[i][j];
+			if(last_b >= 0)
+				sol -= backwardEdges[i][last_b];
+			best = max(sol, best);
+			b.insert(j);
+		}
+		a.insert(i);
+	}
+	
+	if(last_b >= 0)
+		pd[bm_a][bm_b][last_b] = best;
+
+	return best; 
+}
+
+
+solution* findPath(unordered_set<int> &a, unordered_set<int> &b, int last_b, int curr){
 	solution *best = (solution*) malloc(sizeof(solution));
 	best->value = curr;
 	best->pos = 0;
@@ -23,16 +62,16 @@ solution* rec(unordered_set<int> &a, unordered_set<int> &b, int last_b, int curr
 	int aux = curr + 2*AWARD;
 	for(auto i: a_cp){
 		if(last_b != -1){
-			if(aux < backward[i][last_b])
+			if(aux < backwardEdges[i][last_b])
 				continue;
-			aux -= backward[i][last_b]; 
+			aux -= backwardEdges[i][last_b]; 
 		}
 		a.erase(i);
 		for(auto j: b_cp){
 			if(aux < forwardEdges[i][j])
 				continue;
 			b.erase(j);
-			solution *sol = rec(a, b, j, aux - forwardEdges[i][j]);
+			solution *sol = findPath(a, b, j, aux - forwardEdges[i][j]);
 			if(sol->value > best->value or ( sol -> value == best -> value and sol->pos <= best->pos - 2)){
 				
 				free(best);
@@ -47,7 +86,7 @@ solution* rec(unordered_set<int> &a, unordered_set<int> &b, int last_b, int curr
 			b.insert(j);
 		}
 		if(last_b != -1)
-			aux += backward[i][last_b]; 
+			aux += backwardEdges[i][last_b]; 
 		a.insert(i);
 	}
 	return best;
@@ -60,13 +99,17 @@ int main(){
 			cin >> forwardEdges[i][j];
 	for(int i = 0; i < m; i++)
 		for(int j = 0;  j < n; j++)
-			cin >> backward[i][j];
+			cin >> backwardEdges[i][j];
 	unordered_set<int> a, b;
 	for(int i = 0; i < n; i++)
 		a.insert(i);
 	for(int j = 0; j < m; j++)
 		b.insert(j);
-	solution* ans = rec(a, b, -1, 0);
+	fillPD(INT_MIN);
+	cout << rec(a, b, 0, 0, -1) << endl;
+
+/*
+	solution* ans = findPath(a, b, -1, 0);
 	printf("OF %d - ", ans-> value);
 	for(int i = ans -> pos - 1; i >= 0; i -= 2)
 	{
@@ -78,4 +121,6 @@ int main(){
 			printf(" -> ");
 	}
 	printf("\n");
+*/
+
 }
