@@ -6,7 +6,7 @@
 #define GRASP_ALPHA 3
 #define AWARD 250
 #define MUTATION_RATE 100
-#define NEW_POPULATION_RATE 0.90
+#define NEW_POPULATION_RATE 0.80
 #define TIMELIMIT 10
 #define CURR_TIME timediff_in_sec(start, clock())
 
@@ -69,6 +69,8 @@ int main()
 	while (CURR_TIME - best.created_at < TIMELIMIT)
 	{
 	
+
+
 		print_step_results(best);
 			
 		for (int i = 0; i < POPULATION_SIZE; i++)
@@ -157,6 +159,7 @@ void build_grasp(solution &sol)
 {
 	sol.seq_a.resize(size_a);
 	sol.seq_b.resize(size_b);
+
 	vector<bool> visited_b(size_b);
 	vector<int> leftovers;
 	for (int i = 0; i < size_a; i++)
@@ -174,6 +177,7 @@ void build_grasp(solution &sol)
 		for (int i = size_a, j = 0; i < size_b; i++, j++)
 			sol.seq_b[i] = leftovers[j];
 	}
+		
 	sol.created_at = CURR_TIME;
 	sol.generation = generation;
 	APPLY_OF(sol);
@@ -313,13 +317,16 @@ void of_from_start_idx(solution &sol)
 	{
 		if (i)
 			curr += -BackwardEdges[sol.seq_a[i]][sol.seq_b[i - 1]];
+		
 		curr += -FowardEdges[sol.seq_a[i]][sol.seq_b[i]] + 2 * AWARD;
+		
 		if (sol.best_value < curr)
 		{
 			sol.best_value = curr;
 			sol.best_end = i + 1;
 		}
 	}
+
 	sol.fw_punition = 0;
 	sol.bk_punition = 0;
 	for (int i = sol.best_start; i < sol.best_end; i++)
@@ -371,7 +378,7 @@ void read_input()
 	for (auto &row : FowardEdges)
 		for (auto &edge : row)
 			cin >> edge;
-	BackwardEdges.assign(size_b, vector<int>(size_a));
+	BackwardEdges.assign(size_a, vector<int>(size_b));
 	for (auto &row : BackwardEdges)
 		for (auto &edge : row)
 			cin >> edge;
