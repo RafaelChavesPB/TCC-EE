@@ -1,0 +1,2 @@
+#!/usr/bin/bash
+g++ instances.cpp -o ./bin/instances.exe && ./bin/instances.exe $1 $2 > random_instances/$3

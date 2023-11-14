@@ -6,7 +6,7 @@ int main(int argc, char *argv[]){
 	minstd_rand0 generator(clock());
 	for(int i = 0; i < a; i++){
 		for(int j = 0; j < b; j++){
-			int mod = generator()%400+500; 
+			int mod = generator()%400+550; 
 			cout << generator()%mod << ' ';
 		}
 		cout << endl;
