@@ -29,8 +29,13 @@ auto random_generator = default_random_engine(clock());
 typedef struct Solution
 {
 	vector<int> seq_a, seq_b;
-	int best_value, best_start, best_end, generation;
-	int fw_punition, bk_punition;
+	double weight;
+	int best_value;
+	int best_start;
+	int best_end;
+	int generation;
+	int fw_punition;
+	int bk_punition;
 	double created_at;
 } solution;
 
@@ -68,15 +73,10 @@ int main()
 	
 	while (CURR_TIME - best.created_at < TIMELIMIT)
 	{
-	
-
-
-		print_step_results(best);
-			
+		print_step_results(best);		
 		for (int i = 0; i < POPULATION_SIZE; i++)
 			if(random_generator()%100  < MUTATION_RATE)
 				APPLY_MUTATION(population[i]);
-		
 		
 		shuffle(population.begin(), population.end(), random_generator);
 		for (int i = 0; i < POPULATION_SIZE; i += 2)

@@ -11,11 +11,11 @@ else
 	output="random_instances/results_genetic"
 	echo "Executando as intâncias em random_intances."
 	echo $(date) > $output
-	for i in 5 6 7 8; do
-		for j in 1 2 3 4 5; do
+	for i in $(seq 7 12); do
+		for j in $(seq 1 5); do
 			results=$(./$EXE < random_instances/${i}_${j})
-			echo "${j}_${i}: ${result}"
-			echo "${j}_${i}: ${result}" >> $output
+			echo "${i}_${j}: ${result}"
+			echo "${i}_${j}: ${result}" >> $output
 		done;
 	done;
 fi

@@ -1,2 +1,11 @@
 #!/usr/bin/bash
-g++ instances.cpp -o ./bin/instances.exe && ./bin/instances.exe $1 $2 > random_instances/$3
+g++ instances.cpp -o ./bin/instances.exe
+if [ $1 ]; then 
+	./bin/instances.exe $1 $2 > random_instances/$3
+else 
+	for i in $(seq 7 12); do
+		for j in $(seq 1 5); do
+			./bin/instances.exe $i $i > random_instances/${i}_${j}
+		done
+	done
+fi

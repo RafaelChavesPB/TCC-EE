@@ -11,11 +11,11 @@ else
 	output=random_instances/results
 	echo "Executando todos as instâncias em random_instances."
 	echo $(date) > $output
-	for j in 5 6 7 8; do 
-	    for i in 1 2 3 4 5; do 
-		result=$(./$EXE < "random_instances/${j}_${i}")
-		echo "${j}_${i}: ${result}"
-		echo "${j}_${i}: ${result}" >> $output 
+	for i in $(seq 7 12); do 
+	    for j in $(seq 1 5); do 
+		result=$(./$EXE < "random_instances/${i}_${j}")
+		echo "${i}_${j}: ${result}"
+		echo "${i}_${j}: ${result}" >> $output 
 	    done 
 	done
 fi
